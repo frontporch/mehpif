@@ -10,10 +10,22 @@ var createElement = require('virtual-dom/create-element');
 var patch = require('virtual-dom/patch');
 var $ = require('jquery');
 function addListeners(node, events) {
-    var $el = $(node);
-    events.forEach(function (e) {
-        $el.on(e.events, e.selector, e.handler);
-    });
+    if (events && events.length) {
+        var $el = $(node);
+        for (var i = 0; i < events.length; i++) {
+            var e = events[i];
+            $el.on(e.events, e.selector, e.handler);
+        }
+    }
+}
+function removeListeners(node, events) {
+    if (events && events.length) {
+        var $el = $(node);
+        for (var i = 0; i < events.length; i++) {
+            var e = events[i];
+            $el.off(e.events, e.selector, e.handler);
+        }
+    }
 }
 function prepareHandler(handler, context) {
     // support "method" names
@@ -113,7 +125,7 @@ var View = (function () {
         //console.log(this, 'hook', node, propertyName, previousValue);
     };
     View.prototype.unhook = function (node, propertyName, previousValue) {
-        // FIXME off stuff
+        removeListeners(node, this.eventSet);
         this.onUnhook(node);
         //console.log(this, 'unhook', node, propertyName, previousValue);
     };

@@ -10,12 +10,24 @@ import $ = require('jquery');
 export type VTree = any;
 
 function addListeners(node: any, events: IEvent[]) {
-    var $el = $(node);
-    events.forEach(e => {
-        $el.on(e.events as any, e.selector, e.handler);
-    });
+    if (events && events.length) {
+        const $el = $(node);
+        for (let i = 0; i < events.length; i++) {
+            const e = events[i];
+            $el.on(e.events as any, e.selector, e.handler);
+        }
+    }
 }
 
+function removeListeners(node: any, events: IEvent[]) {
+    if (events && events.length) {
+        const $el = $(node);
+        for (let i = 0; i < events.length; i++) {
+            const e = events[i];
+            $el.off(e.events as any, e.selector, e.handler as any);
+        }
+    }
+}
 
 function prepareHandler(handler: any, context: any): Function {
     // support "method" names
@@ -154,7 +166,7 @@ export abstract class View<T> {
     }
 
     private unhook(node: any, propertyName: any, previousValue: any): void {
-        // FIXME off stuff
+        removeListeners(node, this.eventSet);
         this.onUnhook(node);
         //console.log(this, 'unhook', node, propertyName, previousValue);
     }
